@@ -12,6 +12,7 @@ import dataobjects.rwa.Message;
 public class RwaProfile {
 
     private String strRwaId;
+
     private String strAddress;
     private ArrayList<Contact> lstContact;
     private ArrayList<Message> lstMessage;
