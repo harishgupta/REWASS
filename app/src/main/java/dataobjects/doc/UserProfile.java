@@ -9,6 +9,8 @@ import dataobjects.regsiter.Rwa;
  */
 public class UserProfile {
 
+    private String strUserId;
+    private String strLoginId;
     private ArrayList<Rwa> lstRWA;
 
 }

@@ -12,6 +12,8 @@ import java.text.*;
 
 import java.io.IOException;
 
+import appcache.AppData;
+
 public class Test extends ActionBarActivity {
 
     @Override
@@ -30,43 +32,38 @@ public class Test extends ActionBarActivity {
             return;
         }
 
-        // create a name for the database and make sure the name is legal
-        String dbname = "hello";
-        if (!Manager.isValidDatabaseName(dbname)) {
-            Log.e(TAG, "Bad database name");
-            return;
-        }
-        // create a new database
-        Database database;
-        try {
-            database = manager.getDatabase(dbname);
-            Log.d (TAG, "Database created");
-        } catch (CouchbaseLiteException e) {
-            Log.e(TAG, "Cannot get database");
-            return;
-        }
-        // get the current date and time
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        Calendar calendar = GregorianCalendar.getInstance();
-        String currentTimeString = dateFormatter.format(calendar.getTime());
-// create an object that contains data for a document
-        Map<String, Object> docContent = new HashMap<String, Object>();
-        docContent.put("message", "Hello Couchbase Lite");
-        docContent.put("creationDate", currentTimeString);
-// display the data for the new document
-        Log.d(TAG, "docContent=" + String.valueOf(docContent));
-// create an empty document
-        Document document = database.createDocument();
+        /* Get a list of databases, if the database 'mainDB' doesn't exist, create one */
+        Database mainDB;
+        String strDbName = "mainDB";
+        boolean flgDbFound=false;
 
-// add content to document and write the document to the database
-        try {
-            document.putProperties(docContent);
-            Log.d (TAG, "Document written to database named " + dbname + " with ID = " + document.getId());
-        } catch (CouchbaseLiteException e) {
-            Log.e(TAG, "Cannot write document to database", e);
+        List<String> lstDB = manager.getAllDatabaseNames();
+        for (Iterator<String> itr=lstDB.iterator(); itr.hasNext();) {
+            if (strDbName==itr.next()) {
+                flgDbFound=true;
+                break;
+            }
         }
-// save the ID of the new document
-        String docID = document.getId();
+
+        if (flgDbFound) {
+            try {
+                mainDB = manager.getExistingDatabase(strDbName);
+                Log.d(TAG, "Main DB opened");
+            } catch (CouchbaseLiteException e) {
+                Log.e(TAG, "Cannot open database");
+                return;
+            }
+        } else {
+            try {
+                mainDB = manager.getDatabase(strDbName);
+                Log.d(TAG, "Main DB created");
+            } catch (CouchbaseLiteException e) {
+                Log.e(TAG, "Cannot get database");
+                return;
+            }
+        }
+        AppData.getInstance().setCblMainDB(mainDB);
+
     }
 
 
